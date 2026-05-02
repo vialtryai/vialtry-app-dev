@@ -5,12 +5,6 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const code = searchParams.get('code')
   const shop = searchParams.get('shop')
-  const state = searchParams.get('state')
-
-  const cookieHeader = request.headers.get('cookie') || ''
-  const savedState = cookieHeader.match(/shopify_oauth_state=([^;]+)/)?.[1]
-  // state check temporarily disabled for testing
-  // if (!state || state !== savedState) { return NextResponse.redirect(...) }
 
   if (!code || !shop) {
     return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/onboarding?error=missing_params`)
@@ -27,7 +21,7 @@ export async function GET(request: Request) {
   })
 
   if (!tokenRes.ok) {
-    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/onboarding?error=token_exchange_failed`)
+    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/onboarding?error=token_failed`)
   }
 
   const { access_token } = await tokenRes.json()
@@ -41,7 +35,12 @@ export async function GET(request: Request) {
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {
-    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/login`)
+    const params = new URLSearchParams({
+      shop,
+      token: access_token,
+      shopName: shopData.name,
+    })
+    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/onboarding/complete?${params}`)
   }
 
   await supabase.from('brands').insert({
