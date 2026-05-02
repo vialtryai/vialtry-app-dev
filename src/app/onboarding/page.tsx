@@ -1,39 +1,21 @@
 'use client'
 import { useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 
 export default function OnboardingPage() {
   const [step, setStep] = useState(1)
   const [brandName, setBrandName] = useState('')
-  const [shopifyDomain, setShopifyDomain] = useState('')
-  const [accessToken, setAccessToken] = useState('')
+  const [shopDomain, setShopDomain] = useState('')
   const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
-  const router = useRouter()
-  const supabase = createClient()
 
-  async function handleConnect() {
-    setLoading(true)
-    setError('')
-    const domain = shopifyDomain.replace('https://','').replace('http://','').replace(/\/$/,'').trim()
-    const res = await fetch('/api/shopify/verify', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ domain, accessToken }),
-    })
-    const data = await res.json()
-    if (!res.ok) { setError(data.error || 'Could not connect'); setLoading(false); return }
-    const { data: { user } } = await supabase.auth.getUser()
-    const { error: dbError } = await supabase.from('brands').insert({
-      user_id: user!.id,
-      name: brandName || data.shopName,
-      shopify_domain: domain,
-      shopify_access_token: accessToken,
-      status: 'active',
-    } as never)
-    if (dbError) { setError((dbError as any).message); setLoading(false); return }
-    router.push('/dashboard')
+  function handleConnectShopify() {
+    const domain = shopDomain.replace('https://','').replace('http://','').replace(/\/$/,'').trim()
+    if (!domain.includes('.myshopify.com')) {
+      setError('Enter valid .myshopify.com domain')
+      return
+    }
+    sessionStorage.setItem('vialtry_brand_name', brandName)
+    window.location.href = `/api/shopify/oauth/start?shop=${domain}`
   }
 
   return (
@@ -51,39 +33,24 @@ export default function OnboardingPage() {
             <div><h2 className="text-white font-semibold text-lg mb-1">Your brand</h2><p className="text-gray-400 text-sm">What should we call your brand?</p></div>
             <div>
               <label className="text-gray-400 text-xs uppercase tracking-wider mb-1 block">Brand name</label>
-              <input type="text" value={brandName} onChange={e=>setBrandName(e.target.value)} className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-violet-500 transition-colors" placeholder="e.g. TDK Supplements"/>
+              <input type="text" value={brandName} onChange={e=>setBrandName(e.target.value)} className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-violet-500 transition-colors" placeholder="e.g. Iron Asylum"/>
             </div>
-            <button onClick={()=>setStep(2)} disabled={!brandName.trim()} className="w-full bg-violet-600 hover:bg-violet-500 disabled:bg-gray-800 disabled:text-gray-600 disabled:cursor-not-allowed text-white font-medium rounded-lg py-2.5 text-sm transition-colors">Continue →</button>
+            <button onClick={()=>setStep(2)} disabled={!brandName.trim()} className="w-full bg-violet-600 hover:bg-violet-500 disabled:bg-gray-800 disabled:text-gray-600 disabled:cursor-not-allowed text-white font-medium rounded-lg py-2.5 text-sm transition-colors">Continue</button>
           </>}
           {step===2 && <>
-            <div><h2 className="text-white font-semibold text-lg mb-1">Connect Shopify</h2><p className="text-gray-400 text-sm">We need read access to your products.</p></div>
-            <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4 space-y-2">
-              <p className="text-gray-300 text-xs font-medium uppercase tracking-wider">How to get your API token</p>
-              <ol className="text-gray-400 text-xs space-y-1.5 list-decimal list-inside">
-                <li>Shopify Admin → Settings → Apps and sales channels</li>
-                <li>Click <span className="text-white">Develop apps</span> → Create an app</li>
-                <li>Configure Admin API scopes: <span className="text-violet-400">read_products, read_inventory</span></li>
-                <li>Install app → Copy <span className="text-white">Admin API access token</span></li>
-              </ol>
-            </div>
+            <div><h2 className="text-white font-semibold text-lg mb-1">Connect Shopify</h2><p className="text-gray-400 text-sm">Enter your store domain.</p></div>
             {error && <div className="bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2 text-red-400 text-sm">{error}</div>}
-            <div className="space-y-3">
-              <div>
-                <label className="text-gray-400 text-xs uppercase tracking-wider mb-1 block">Shopify domain</label>
-                <input type="text" value={shopifyDomain} onChange={e=>setShopifyDomain(e.target.value)} className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-violet-500 transition-colors" placeholder="yourstore.myshopify.com"/>
-              </div>
-              <div>
-                <label className="text-gray-400 text-xs uppercase tracking-wider mb-1 block">Admin API access token</label>
-                <input type="password" value={accessToken} onChange={e=>setAccessToken(e.target.value)} className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-violet-500 transition-colors" placeholder="shpat_xxxxxxxxxxxx"/>
-              </div>
+            <div>
+              <label className="text-gray-400 text-xs uppercase tracking-wider mb-1 block">Shopify domain</label>
+              <input type="text" value={shopDomain} onChange={e=>setShopDomain(e.target.value)} className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-violet-500 transition-colors" placeholder="yourstore.myshopify.com"/>
             </div>
             <div className="flex gap-3">
-              <button onClick={()=>setStep(1)} className="px-4 py-2.5 text-gray-400 hover:text-white text-sm transition-colors">← Back</button>
-              <button onClick={handleConnect} disabled={loading||!shopifyDomain.trim()||!accessToken.trim()} className="flex-1 bg-violet-600 hover:bg-violet-500 disabled:bg-gray-800 disabled:text-gray-600 disabled:cursor-not-allowed text-white font-medium rounded-lg py-2.5 text-sm transition-colors">{loading?'Connecting...':'Connect store'}</button>
+              <button onClick={()=>setStep(1)} className="px-4 py-2.5 text-gray-400 hover:text-white text-sm transition-colors">Back</button>
+              <button onClick={handleConnectShopify} disabled={!shopDomain.trim()} className="flex-1 bg-violet-600 hover:bg-violet-500 disabled:bg-gray-800 disabled:text-gray-600 disabled:cursor-not-allowed text-white font-medium rounded-lg py-2.5 text-sm transition-colors">Connect with Shopify</button>
             </div>
           </>}
         </div>
-        <p className="text-gray-600 text-xs text-center mt-4">Your token is encrypted and stored securely. Read-only access only.</p>
+        <p className="text-gray-600 text-xs text-center mt-4">Read-only access. We never modify your store.</p>
       </div>
     </div>
   )
