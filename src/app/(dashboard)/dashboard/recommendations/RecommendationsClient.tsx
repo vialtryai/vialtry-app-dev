@@ -12,7 +12,7 @@ export default function RecommendationsClient({brands:initialBrands}:{brands:Bra
   const [done,setDone]=useState<Set<string>>(new Set())
   const [generating,setGenerating]=useState<string|null>(null)
   const [suggestions,setSuggestions]=useState<Record<string,string>>({})
-  const [expanded,setExpanded]=useState<Set<string>>(new Set())
+  const [expanded,setExpanded]=useState<Set<string>>(new Set()) 
 
   useEffect(()=>{if(selectedBrand)loadFixes(selectedBrand.id)},[selectedBrand])
 
