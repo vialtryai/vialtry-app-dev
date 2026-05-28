@@ -18,8 +18,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           <Link href="/dashboard" className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition-colors text-sm">⬡ Overview</Link>
           <Link href="/dashboard/audit" className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition-colors text-sm">⊙ PDP Audit</Link>
           <Link href="/dashboard/visibility" className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition-colors text-sm">◎ AI Visibility</Link>
-          <Link href="/dashboard/recommendations" className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition-colors text-sm">⊕ Fix Queue</Link>
-          <div className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-gray-600 text-sm cursor-not-allowed">
+          <Link href="/dashboard/prompts" className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition-colors text-sm">⊛ SOV Prompts</Link>          <div className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-gray-600 text-sm cursor-not-allowed">
             ⊘ Competitors
             <span className="ml-auto text-xs bg-gray-800 text-gray-600 px-1.5 py-0.5 rounded">soon</span>
           </div>
