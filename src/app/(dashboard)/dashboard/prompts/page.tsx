@@ -8,7 +8,7 @@ interface Prompt {
   prompt_text: string
   category: string
   is_active: boolean
-  created_at: string
+  created_at: string 
 }
 
 export default function PromptsPage() {
