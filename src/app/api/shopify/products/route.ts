@@ -1,12 +1,16 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+
 export async function POST(request: Request) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  
   const { brandId } = await request.json()
-  const { data: brand } = await supabase.from('brands').select('*').eq('id', brandId).eq('user_id', user.id).single()
+  
+  const { data: brand } = await supabase.from('brands').select('*').eq('id', brandId).single()
   if (!brand) return NextResponse.json({ error: 'Brand not found' }, { status: 404 })
+  
   try {
     const res = await fetch(
       `https://${brand.shopify_domain}/admin/api/2024-01/products.json?limit=10&status=active&fields=id,title,handle,product_type,vendor,variants,images,body_html,tags`,
