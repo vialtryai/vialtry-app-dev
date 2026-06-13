@@ -5,6 +5,12 @@ import { universalAttributes } from './universal'
 import { fashionAttributes } from './verticals/fashion'
 import { beautyAttributes } from './verticals/beauty'
 import { homeAttributes } from './verticals/home'
+import { sportsAttributes } from './verticals/sports'
+import { healthAttributes } from './verticals/health'
+import { babyAttributes } from './verticals/baby'
+import { petAttributes } from './verticals/pet'
+import { electronicsAttributes } from './verticals/electronics'
+import { automotiveAttributes } from './verticals/automotive'
 
 export interface AuditResult {
   core_score: number; full_score: number; vertical: string
@@ -30,6 +36,12 @@ function detectVertical(product: any): string {
   if (/shirt|dress|pant|jean|skirt|jacket|coat|hoodie|sweater|blouse|tee|top|bottom|apparel|clothing|fashion|wear|outfit|shoe|boot|sneaker|sandal|bag|handbag|wallet|belt|scarf|jewel|watch|sunglass/i.test(combined)) return 'fashion'
   if (/serum|moisturizer|moisturiser|cleanser|sunscreen|spf|skincare|skin care|shampoo|conditioner|hair|makeup|lipstick|foundation|mascara|beauty|cosmetic|lotion|cream|toner|mask|fragrance|perfume/i.test(combined)) return 'beauty'
   if (/sofa|couch|table|chair|bed|mattress|pillow|lamp|rug|curtain|decor|furniture|shelf|cabinet|storage|home|living|kitchen|cookware|bedding|blanket|throw|wall art|mirror|vase|candle/i.test(combined)) return 'home'
+  if (/running|yoga|gym|cycling|swimming|hiking|tennis|basketball|football|dumbbell|barbell|kettlebell|treadmill|fitness|workout|sport|athletic|exercise/i.test(combined)) return 'sports'
+  if (/vitamin|supplement|protein|probiotic|collagen|omega|wellness|nutrition|capsule|tablet|powder|gummy/i.test(combined)) return 'health'
+  if (/baby|infant|toddler|newborn|kids|children|toy|stroller|car seat|diaper|feeding|nursery/i.test(combined)) return 'baby'
+  if (/dog|cat|pet|puppy|kitten|bird|fish|rabbit|hamster|treats|collar|leash|pet care/i.test(combined)) return 'pet'
+  if (/laptop|phone|tablet|headphone|earbuds|speaker|camera|monitor|keyboard|mouse|electronics|gadget|charger|router|smartwatch/i.test(combined)) return 'electronics'
+  if (/car|auto|vehicle|truck|suv|motorcycle|dash cam|car audio|automotive|tire|seat cover/i.test(combined)) return 'automotive'
   return 'universal'
 }
 
@@ -39,6 +51,12 @@ export function auditProduct(product: any): AuditResult {
   if (vertical === 'fashion') verticalAttrs = fashionAttributes
   else if (vertical === 'beauty') verticalAttrs = beautyAttributes
   else if (vertical === 'home') verticalAttrs = homeAttributes
+  else if (vertical === 'sports') verticalAttrs = sportsAttributes
+  else if (vertical === 'health') verticalAttrs = healthAttributes
+  else if (vertical === 'baby') verticalAttrs = babyAttributes
+  else if (vertical === 'pet') verticalAttrs = petAttributes
+  else if (vertical === 'electronics') verticalAttrs = electronicsAttributes
+  else if (vertical === 'automotive') verticalAttrs = automotiveAttributes
 
   const allAttributes = [...universalAttributes, ...verticalAttrs]
   const categoryMap: Record<string, { score: number; max: number; gaps: Gap[] }> = {}
