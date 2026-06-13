@@ -15,6 +15,7 @@ export default function RecommendationsClient({brands:initialBrands}:{brands:Bra
   const [expanded,setExpanded]=useState<Set<string>>(new Set()) 
 
   useEffect(()=>{if(selectedBrand)loadFixes(selectedBrand.id)},[selectedBrand])
+    const [copied,setCopied]=useState<string|null>(null)
 
   async function loadFixes(brandId:string){
     setLoading(true)
@@ -97,7 +98,7 @@ export default function RecommendationsClient({brands:initialBrands}:{brands:Bra
                       {generating===fix.id?<div className="bg-gray-800 rounded-lg p-3 text-gray-400 text-xs">Generating...</div>:suggestions[fix.id]?(
                         <div className="bg-gray-800 rounded-lg p-3">
                           <p className="text-gray-300 text-xs leading-relaxed whitespace-pre-wrap">{suggestions[fix.id]}</p>
-                          <button onClick={()=>{navigator.clipboard.writeText(suggestions[fix.id])}} className="mt-2 text-xs text-gray-500 hover:text-gray-300 transition-colors">⎘ Copy</button>
+                          <button onClick={()=>{navigator.clipboard.writeText(suggestions[fix.id]);setCopied(fix.id);setTimeout(()=>setCopied(null),2000)}} className={`mt-2 text-xs transition-colors ${copied===fix.id?'text-green-400':'text-gray-500 hover:text-gray-300'}`}>{copied===fix.id?'✓ Copied!':'⎘ Copy'}</button>
                         </div>
                       ):<div className="bg-gray-800 rounded-lg p-3 text-gray-500 text-xs">Loading suggestion...</div>}
                     </div>
