@@ -64,7 +64,7 @@ if(!brands || brands.length===0) redirect('/onboarding')
         <div className="bg-gray-900 border border-gray-800 rounded-xl p-5">
           <p className="text-gray-400 text-xs uppercase tracking-wider mb-4">Quick Actions</p>
           <div className="grid grid-cols-2 gap-3">
-            {[{href:'/dashboard/audit',icon:'⊙',label:'PDP Audit',desc:'Score products'},{href:'/dashboard/visibility',icon:'◎',label:'AI SOV',desc:'Check visibility'},{href:'/dashboard/recommendations',icon:'⊕',label:'Fix Queue',desc:'Prioritized fixes'},{href:'/onboarding',icon:'🔌',label:'Add Brand',desc:'Connect store'}].map(a=>(
+            {[{href:'/dashboard/audit',icon:'⊙',label:'PDP Audit',desc:'Score products'},{href:'/dashboard/visibility',icon:'◎',label:'AI SOV',desc:'Check visibility'},{href:'/dashboard/recommendations',icon:'⊕',label:'Fix Queue',desc:'Prioritized fixes'},{href:'/onboarding',icon:'🔌',label:'Add Brand',desc:'Connect store'},{href:'/llms.txt',icon:'🤖',label:'llms.txt',desc:'AI agent feed'}].map(a=>(
               <Link key={a.href} href={a.href} className="bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg p-3 block transition-colors">
                 <p className="text-lg mb-1">{a.icon}</p><p className="text-white text-xs font-medium">{a.label}</p><p className="text-gray-500 text-xs">{a.desc}</p>
               </Link>
