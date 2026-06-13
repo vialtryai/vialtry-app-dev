@@ -18,7 +18,7 @@ export async function POST(request: Request) {
   }
   const prompt = prompts[attribute] || `${action} for "${product_title}". Write ready-to-use copy that improves AI visibility. Concise and specific.`
   try {
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiKey}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{role:'user',parts:[{text:prompt}]}],generationConfig:{temperature:0.4,maxOutputTokens:800}})})
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiKey}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{role:'user',parts:[{text:prompt}]}],generationConfig:{temperature:0.4,maxOutputTokens:800},thinkingConfig:{thinkingBudget:0}})})
     if(!res.ok) return NextResponse.json({error:'Gemini API error'},{status:500})
     const data = await res.json()
     return NextResponse.json({suggestion:data.candidates?.[0]?.content?.parts?.[0]?.text||'Could not generate'})
