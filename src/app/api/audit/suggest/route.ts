@@ -4,6 +4,7 @@ export async function POST(request: Request) {
   const geminiKey = process.env.GEMINI_API_KEY
   if(!geminiKey) return NextResponse.json({error:'Gemini API key not configured'},{status:500})
   const prompts:Record<string,string> = {
+    sku_exists:`For "${product_title}", write 3 specific SKU examples following format: [BRAND]-[CATEGORY]-[COLOR]-[SIZE]. Example: VT-HOODIE-BLU-M. Make them unique and descriptive for AI agent discoverability.`,
     has_faq:`Write a 5-question FAQ section for "${product_title}". Format as Q: / A: pairs. Make answers helpful for AI shopping queries.`,
     desc_has_ingredients:`Write a concise "Ingredients & Materials" section for "${product_title}". 3-5 sentences, factual and specific.`,
     desc_has_benefits:`Write a "Key Benefits" section for "${product_title}" with 4-5 bullet points. Focus on outcomes AI agents match to queries.`,
@@ -17,7 +18,7 @@ export async function POST(request: Request) {
   }
   const prompt = prompts[attribute] || `${action} for "${product_title}". Write ready-to-use copy that improves AI visibility. Concise and specific.`
   try {
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiKey}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{role:'user',parts:[{text:prompt}]}],generationConfig:{temperature:0.4,maxOutputTokens:400}})})
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiKey}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{role:'user',parts:[{text:prompt}]}],generationConfig:{temperature:0.4,maxOutputTokens:800}})})
     if(!res.ok) return NextResponse.json({error:'Gemini API error'},{status:500})
     const data = await res.json()
     return NextResponse.json({suggestion:data.candidates?.[0]?.content?.parts?.[0]?.text||'Could not generate'})
