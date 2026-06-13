@@ -5,11 +5,21 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const code = searchParams.get('code')
   const shop = searchParams.get('shop')
+  const stateParam = searchParams.get('state')
 
   if (!code || !shop) {
     return NextResponse.redirect(
       `${process.env.NEXT_PUBLIC_APP_URL}/onboarding?error=missing_params`
     )
+  }
+
+  // Decode user_id from state
+  let userId: string | null = null
+  try {
+    const decoded = JSON.parse(Buffer.from(stateParam || '', 'base64').toString())
+    userId = decoded.userId || null
+  } catch {
+    console.error('State decode failed')
   }
 
   // 1. Token exchange
@@ -50,7 +60,7 @@ export async function GET(request: Request) {
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   )
 
-  // Duplicate check — same shop already connected?
+  // Duplicate check
   const { data: existing } = await supabase
     .from('brands')
     .select('id')
@@ -63,6 +73,7 @@ export async function GET(request: Request) {
       shopify_domain: shop,
       shopify_access_token: access_token,
       status: 'active',
+      user_id: userId,
     })
 
     if (insertError) {
@@ -73,7 +84,6 @@ export async function GET(request: Request) {
     }
   }
 
-  // 4. Dashboard pe bhejo — no token in URL
   return NextResponse.redirect(
     `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`
   )
