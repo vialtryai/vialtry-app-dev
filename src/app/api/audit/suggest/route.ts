@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 export async function POST(request: Request) {
   const {attribute,product_title,action} = await request.json()
-  const geminiKey = process.env.GEMINI_API_KEY
+  const geminiKey = (process.env.GEMINI_API_KEY || '').trim()
   if(!geminiKey) return NextResponse.json({error:'Gemini API key not configured'},{status:500})
   const prompts:Record<string,string> = {
     sku_exists:`For "${product_title}", write 3 specific SKU examples following format: [BRAND]-[CATEGORY]-[COLOR]-[SIZE]. Example: VT-HOODIE-BLU-M. Make them unique and descriptive for AI agent discoverability.`,
@@ -18,9 +18,9 @@ export async function POST(request: Request) {
   }
   const prompt = prompts[attribute] || `${action} for "${product_title}". Write ready-to-use copy that improves AI visibility. Concise and specific.`
   try {
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiKey}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{role:'user',parts:[{text:prompt}]}],generationConfig:{temperature:0.4,maxOutputTokens:800},thinkingConfig:{thinkingBudget:0},thinkingConfig:{thinkingBudget:0}})})
-    if(!res.ok) return NextResponse.json({error:'Gemini API error'},{status:500})
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiKey}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{role:'user',parts:[{text:prompt}]}],generationConfig:{temperature:0.4,maxOutputTokens:800}})})
+    if(!res.ok){const err=await res.text();console.error('Gemini error:',err);return NextResponse.json({error:'Gemini API error',details:err},{status:500})}
     const data = await res.json()
     return NextResponse.json({suggestion:data.candidates?.[0]?.content?.parts?.[0]?.text||'Could not generate'})
-  } catch { return NextResponse.json({error:'Failed to generate'},{status:500}) }
+  } catch(e) { console.error('Suggest error:',e);return NextResponse.json({error:'Failed to generate'},{status:500}) }
 }
