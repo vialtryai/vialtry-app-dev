@@ -6,7 +6,7 @@ export async function GET(request: Request) {
   const { data:{user} } = await supabase.auth.getUser()
   if(!user) return NextResponse.json({error:'Unauthorized'},{status:401})
 
-  const {data:brands} = await supabase.from('brands').select('id').limit(1)
+  const {data:brands} = await supabase.from('brands').select('id').eq('user_id', user.id)
   const brandId = brands?.[0]?.id
   if(!brandId) return NextResponse.json({error:'No brand found'},{status:404})
 

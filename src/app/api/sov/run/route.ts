@@ -9,7 +9,7 @@ export async function POST(request: Request) {
 
   const {category, promptCount=5} = await request.json()
 
-  const {data:brands} = await supabase.from('brands').select('*').limit(1)
+  const {data:brands} = await supabase.from('brands').select('*').eq('user_id', user.id)
   const brand = brands?.[0]
   if(!brand) return NextResponse.json({error:'Brand not found'},{status:404})
 

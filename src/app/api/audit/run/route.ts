@@ -24,7 +24,7 @@ export async function POST(request: Request) {
 
   // Fallback: if brandId wrong, grab first brand
   if (!brand) {
-    const { data: firstBrand } = await supabase.from('brands').select('*').limit(1).single()
+    const { data: firstBrand } = await supabase.from('brands').select('*').eq('user_id', user.id).single()
     if (!firstBrand) return NextResponse.json({ error: 'No brand found. Please connect your Shopify store.' }, { status: 404 })
     brand = firstBrand
   }
